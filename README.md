@@ -1,4 +1,5 @@
 # Chichat
+![This is an image](https://i.ibb.co/5G9gBMg/Chichat-img.png)
 ## Overview
 Chichat is a chat app for mobile devices which is developed using React Native.
 The app provides users with features such as a chat interface and the ability to share images and their location.
