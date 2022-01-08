@@ -47,7 +47,6 @@ export default class Start extends Component {
           </View>
 
           <View style={styles.innerBg}>
-
             <View style={styles.inputContainer}>
               <Image source={icon} style={styles.icon} />
               <TextInput
@@ -126,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 3,
   },
-  inputContainer:{
+  inputContainer: {
     width: '88%',
     height: 50,
     borderColor: '#757083',
@@ -136,12 +135,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   icon: {
-    opacity: 0.5
+    opacity: 0.5,
   },
   input: {
     fontSize: 16,
     opacity: 0.8,
-    marginLeft: 10
+    marginLeft: 10,
   },
   colorContainer: {
     width: '88%',
