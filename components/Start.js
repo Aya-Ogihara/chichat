@@ -50,6 +50,9 @@ export default class Start extends Component {
             <View style={styles.inputContainer}>
               <Image source={icon} style={styles.icon} />
               <TextInput
+                accessible={true}
+                accessibilityLabel='Your name'
+                accessibilityHint='Please enter your name'
                 style={styles.input}
                 onChangeText={(name) => this.setState({ name })}
                 value={this.state.name}
@@ -61,21 +64,37 @@ export default class Start extends Component {
               <Text style={styles.colorText}>Choose Background Color:</Text>
               <View style={styles.colorWrapper}>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Theme color change'
+                  accessibilityHint='Select black theme color'
+                  accessibilityRole='button'
                   onPress={() => this.changeBgColor(this.colors.black)}
                 >
                   <View style={[styles.circle, styles.black]} />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Theme color change'
+                  accessibilityHint='Select purple theme color'
+                  accessibilityRole='button'
                   onPress={() => this.changeBgColor(this.colors.purple)}
                 >
                   <View style={[styles.circle, styles.purple]} />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Theme color change'
+                  accessibilityHint='Select blue theme color'
+                  accessibilityRole='button'
                   onPress={() => this.changeBgColor(this.colors.blue)}
                 >
                   <View style={[styles.circle, styles.blue]} />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Theme color change'
+                  accessibilityHint='Select green theme color'
+                  accessibilityRole='button'
                   onPress={() => this.changeBgColor(this.colors.green)}
                 >
                   <View style={[styles.circle, styles.green]} />
@@ -84,6 +103,10 @@ export default class Start extends Component {
             </View>
             <Pressable
               style={styles.button}
+              accessible={true}
+              accessibilityLabel='Start Chatting'
+              accessibilityHint='Enter chatting room'
+              accessibilityRole='button'
               onPress={() =>
                 this.props.navigation.navigate('Chats', {
                   name: this.state.name,
