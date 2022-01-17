@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Platform, KeyboardAvoidingView, LogBox } from 'react-native';
 
 //import Gifted chat
 import { Bubble, GiftedChat } from 'react-native-gifted-chat';
@@ -39,10 +39,19 @@ export default class Chats extends Component {
     // creating a references to messages collection
     this.referenceChatMessages = firebase.firestore().collection('messages');
     //this.referenceChatsUser = null;
+
+    // To remove warning message in the console
+    LogBox.ignoreLogs([
+      'Setting a timer',
+      'Warning: ...',
+      'undefined',
+      'Animated.event now requires a second argument for options',
+    ]);
   }
 
   componentDidMount() {
-    //const name = this.props.route.params.name;
+    const name = this.props.route.params.name;
+    this.props.navigation.setOptions({ title: 'Alex & ' + name });
 
     // listen to authentication events
     this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
@@ -60,25 +69,17 @@ export default class Chats extends Component {
         },
       });
 
-      this.unsubscribeChatUser = this.referenceChatMessages.orderBy('createdAt', 'desc').onSnapshot( this.onCollectionUpdate )
-      // // create a reference to the active user's documents
-      // this.referenceChatsUser = firebase
-      //   .firestore()
-      //   .collection('messages')
-      //   .where('uid', '==', this.state.uid);
-      // // listen for collection changes for current user
-      // this.unsubscribeChatUser = this.referenceChatUser.onSnapshot(
-      //   this.onCollectionUpdate
-      // );
+      this.unsubscribe = this.referenceChatMessages
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(this.onCollectionUpdate);
     });
-
   }
 
   componentWillUnmount() {
     // stop listening to authentication
     this.authUnsubscribe();
     // stop listening for changes
-    this.unsubscribeChatUser();
+    this.unsubscribe();
   }
 
   onCollectionUpdate = (querySnapshot) => {
@@ -99,7 +100,6 @@ export default class Chats extends Component {
     });
   };
 
-
   addMessage() {
     const message = this.state.messages[0];
     //add a new message to the collection
@@ -107,7 +107,7 @@ export default class Chats extends Component {
       _id: message._id,
       createdAt: message.createdAt,
       text: message.text || '',
-      user: this.state.user
+      user: this.state.user,
     });
   }
 
@@ -137,9 +137,8 @@ export default class Chats extends Component {
   }
 
   render() {
-    const name = this.props.route.params.name;
     const color = this.props.route.params.bgColor;
-    this.props.navigation.setOptions({ title: 'Alex & ' + name });
+
     return (
       <View style={{ flex: 1, backgroundColor: color }}>
         <GiftedChat
@@ -147,7 +146,7 @@ export default class Chats extends Component {
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
-            _id: this.state.user.uid,
+            _id: this.state.user._id,
             name: this.state.user.name,
             avatar: this.state.user.avatar,
           }}
