@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { View, Platform, KeyboardAvoidingView, LogBox } from 'react-native';
 
+// AsyncStorage
+import AsyncStorage from '@react-native-community/async-storage';
+
 //import Gifted chat
 import { Bubble, GiftedChat } from 'react-native-gifted-chat';
 
