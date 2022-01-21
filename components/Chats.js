@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import { View, Platform, KeyboardAvoidingView, LogBox } from 'react-native';
 
+// NetInfo
+import NetInfo from '@react-native-community/netinfo';
+
 // AsyncStorage
-import AsyncStorage from '@react-native-community/async-storage';
+//import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //import Gifted chat
-import { Bubble, GiftedChat } from 'react-native-gifted-chat';
+import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 
 // Firebase
 const firebase = require('firebase');
@@ -32,6 +36,7 @@ export default class Chats extends Component {
         name: '',
         avatar: '',
       },
+      isConnected: false,
     };
 
     // initializing firebase
@@ -56,25 +61,39 @@ export default class Chats extends Component {
     const name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: 'Alex & ' + name });
 
-    // listen to authentication events
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        await firebase.auth().signInAnonymously();
-      }
-      // update user state with currently active user data
-      this.setState({
-        uid: user.uid,
-        messages: [],
-        user: {
-          _id: user.uid,
-          name: name,
-          avatar: 'https://placeimg.com/140/140/people',
-        },
-      });
+    // check if user is online or offline
+    NetInfo.fetch().then((connection) => {
+      // user is online
+      if (connection.isConnected) {
+        // listen to authentication events
+        this.authUnsubscribe = firebase
+          .auth()
+          .onAuthStateChanged(async (user) => {
+            if (!user) {
+              await firebase.auth().signInAnonymously();
+            }
+            // update user state with currently active user data
+            this.setState({
+              uid: user.uid,
+              messages: [],
+              user: {
+                _id: user.uid,
+                name: name,
+                avatar: 'https://placeimg.com/140/140/people',
+              },
+              isConnected: true,
+            });
 
-      this.unsubscribe = this.referenceChatMessages
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(this.onCollectionUpdate);
+            this.unsubscribe = this.referenceChatMessages
+              .orderBy('createdAt', 'desc')
+              .onSnapshot(this.onCollectionUpdate);
+          });
+      } else {
+        // user is off line
+        this.setState({ isConnected: false });
+        // get messages from AsyncStorage
+        this.getMessages();
+      }
     });
   }
 
@@ -101,6 +120,8 @@ export default class Chats extends Component {
     this.setState({
       messages,
     });
+    // save messages locally to AsyncStorage
+    this.saveMessage();
   };
 
   addMessage() {
@@ -114,6 +135,42 @@ export default class Chats extends Component {
     });
   }
 
+  // get stored messages from AsyncStorage
+  async getMessages() {
+    let messages = '';
+    try {
+      messages = (await AsyncStorage.getItem('messages')) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+  // save messages to AsyncStorage
+  async saveMessage() {
+    try {
+      await AsyncStorage.setItem(
+        'messages',
+        JSON.stringify(this.state.messages)
+      );
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
+  // delete stored messages from AsyncStorage
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem('messages');
+      this.setState({
+        messages: [],
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
   onSend(messages = []) {
     this.setState(
       (previousState) => ({
@@ -121,6 +178,7 @@ export default class Chats extends Component {
       }),
       () => {
         this.addMessage();
+        this.saveMessage();
       }
     );
   }
@@ -139,6 +197,14 @@ export default class Chats extends Component {
     );
   }
 
+  // disable input bar when user is offline
+  renderInputToolbar(props) {
+    if (this.state.isConnected == false) {
+    } else {
+      return <InputToolbar {...props} />;
+    }
+  }
+
   render() {
     const color = this.props.route.params.bgColor;
 
@@ -146,6 +212,7 @@ export default class Chats extends Component {
       <View style={{ flex: 1, backgroundColor: color }}>
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
