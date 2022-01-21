@@ -2,7 +2,58 @@ import React, { Component } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types'
 
+// import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+
+// Firebase
+import firebase from 'firebase';
+import firestore from 'firebase';
+
 export default class CustomActions extends Component {
+
+  // getLocation
+  getLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status === 'granted') {
+      const result = await Location.getCurrentPositionAsync({}).catch(err => console.log(err));
+      const longitude = result.coords.longitude;
+      const latitude = result.coords.latitude;
+      this.props.onSend({
+        location: {
+          longitude: longitude,
+          latitude: latitude,
+        }
+      })
+    }     
+  };
+
+  uploadImageFetch = async (uri) => {
+    const blob = await new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        res(xhr.response)
+      };
+      xhr.onerror = function (err) {
+        console.log(err);
+        rej(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true)
+      xhr.send(null)
+    })
+
+    const imageNameBefore = uri.split('/')
+    const imageName = imageNameBefore[imageNameBefore.length - 1];
+
+    const ref = firebase.storage().ref().child(`images/${imageName}`)
+
+    const snapshot = await ref.put(blob);
+
+    blob.close();
+
+    return await snapshot.ref.getDownloadURL();
+  }
+
   onActionPress = () => {
     const options = [
       'Choose from media library',
@@ -25,7 +76,8 @@ export default class CustomActions extends Component {
             console.log('user wants to take a photo');
             break;
           case 2:
-            console.log('user wants to share the current location');
+            //user wants to share the current location
+            this.getLocation();
             break;
           default:
         }

@@ -13,8 +13,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 
 // Firebase
-const firebase = require('firebase');
-require('firebase/firestore');
+import firebase from 'firebase';
+import firestore from 'firebase';
+// const firebase = require('firebase');
+// require('firebase/firestore');
 
 // Firebase configuration
 const firebaseConfig = {
@@ -38,6 +40,8 @@ export default class Chats extends Component {
         avatar: '',
       },
       isConnected: false,
+      image: null,
+      location: null,
     };
 
     // initializing firebase
@@ -114,8 +118,10 @@ export default class Chats extends Component {
       messages.push({
         _id: data._id,
         createdAt: data.createdAt.toDate(),
-        text: data.text,
+        text: data.text || null,
         user: data.user,
+        image: data.image || null,
+        location: data.location || null,
       });
     });
     this.setState({
@@ -132,7 +138,9 @@ export default class Chats extends Component {
       _id: message._id,
       createdAt: message.createdAt,
       text: message.text || '',
-      user: this.state.user,
+      user: message.user,
+      image: message.image || null,
+      location: message.location || null,
     });
   }
 
@@ -211,21 +219,21 @@ export default class Chats extends Component {
     return <CustomActions {...props} />
   }
 
-  // Custom View
+  //Custom location View
   renderCustomView(props) {
-    const {currentMessage } = props;
+    const { currentMessage } = props;
     if (currentMessage.location) {
       return (
         <MapView 
           style={{
-            with: 150,
+            width: 150,
             height: 100,
             borderRadius: 13,
             margin: 3,
           }}
           region={{
-            latitude: this.state.location.coords.latitude,
-            longitude: this.state.location.coords.longitude,
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421
           }}
