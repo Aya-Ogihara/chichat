@@ -11,6 +11,41 @@ import firestore from 'firebase';
 
 export default class CustomActions extends Component {
 
+    // select image function
+    pickImg = async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      //const {status} = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      let result;
+      if (status === 'granted') {
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: 'Images',
+        }).catch((err) => console.log(err));
+      }
+  
+      if (!result.cancelled) {
+        const imageUrl = await this.uploadImageFetch(result.uri)
+        this.props.onSend({ image: imageUrl})
+      }
+    };
+
+    // take photo function
+  takePhoto = async () => {
+    //const {status} = await Permissions.askAsync(Permissions.MEDIA_LIBRARY && Permissions.CAMERA);
+    const { status } =
+      await ImagePicker.requestCameraPermissionsAsync();
+      
+    let result;
+    if (status === 'granted') {
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: 'Images',
+      }).catch((err) => console.log(err));
+    }
+    if (!result.cancelled) {
+      const imageUrl = await this.uploadImageFetch(result.uri)
+        this.props.onSend({ image: imageUrl})
+    }
+  };
+
   // getLocation
   getLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -70,10 +105,12 @@ export default class CustomActions extends Component {
       async (buttonIndex) => {
         switch (buttonIndex) {
           case 0:
-            console.log('user wants to pick am image');
+            //user wants to pick am image from media library
+            this.pickImg();
             break;
           case 1:
-            console.log('user wants to take a photo');
+            // user wants to take a photo
+            this.takePhoto();
             break;
           case 2:
             //user wants to share the current location
