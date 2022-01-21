@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types'
 
-// import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 // Firebase
