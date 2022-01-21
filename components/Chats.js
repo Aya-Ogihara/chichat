@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Platform, KeyboardAvoidingView, LogBox } from 'react-native';
-
+import CustomActions from './CustomActions'
+import MapView from 'react-native-maps';
 // NetInfo
 import NetInfo from '@react-native-community/netinfo';
 
@@ -205,6 +206,35 @@ export default class Chats extends Component {
     }
   }
 
+  // Custom Actions
+  renderCustomActions(props) {
+    return <CustomActions {...props} />
+  }
+
+  // Custom View
+  renderCustomView(props) {
+    const {currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView 
+          style={{
+            with: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3,
+          }}
+          region={{
+            latitude: this.state.location.coords.latitude,
+            longitude: this.state.location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421
+          }}
+        />
+      )
+    }
+    return null;
+  }
+
   render() {
     const color = this.props.route.params.bgColor;
 
@@ -213,6 +243,8 @@ export default class Chats extends Component {
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
           renderInputToolbar={this.renderInputToolbar.bind(this)}
+          renderActions={this.renderCustomActions}
+          renderCustomView={this.renderCustomView}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
