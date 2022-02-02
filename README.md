@@ -3,6 +3,7 @@
 <img align=top src="https://res.cloudinary.com/yaponka/image/upload/v1642980370/GitHub/Chichat_home.jpg" width="200">
 <img align=top src="https://res.cloudinary.com/yaponka/image/upload/v1642980366/GitHub/Chichat_chat.jpg" width="200">
 </div>
+[Live demo](https://res.cloudinary.com/yaponka/video/upload/v1643671882/portfolio/Chichat_demo_bxgfyl.mp4)
 
 ## Overview
 Chichat is a chat app for mobile devices which is developed using React Native and Expo.
